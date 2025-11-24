@@ -1,4 +1,7 @@
-package com.gof.criacional;
+package com.gof.criacional.factory;
+
+import com.gof.criacional.decoder.RegistrarClienteDecoder;
+import com.gof.criacional.decoder.RegistrarContaDecoder;
 
 public abstract class DecoderFactory {
   public abstract RegistrarClienteDecoder createRegistrarClienteDecoder();

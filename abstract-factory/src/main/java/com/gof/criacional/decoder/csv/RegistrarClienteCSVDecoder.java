@@ -1,4 +1,6 @@
-package com.gof.criacional;
+package com.gof.criacional.decoder.csv;
+
+import com.gof.criacional.decoder.RegistrarClienteDecoder;
 
 public class RegistrarClienteCSVDecoder extends RegistrarClienteDecoder {
   @Override

@@ -1,4 +1,6 @@
-package com.gof.criacional;
+package com.gof.criacional.decoder.xml;
+
+import com.gof.criacional.decoder.RegistrarContaDecoder;
 
 public class RegistrarContaXMLDecoder extends RegistrarContaDecoder {
   @Override

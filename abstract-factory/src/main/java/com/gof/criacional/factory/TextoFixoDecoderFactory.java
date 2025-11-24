@@ -1,4 +1,9 @@
-package com.gof.criacional;
+package com.gof.criacional.factory;
+
+import com.gof.criacional.decoder.RegistrarClienteDecoder;
+import com.gof.criacional.decoder.RegistrarContaDecoder;
+import com.gof.criacional.decoder.textofixo.RegistrarClienteTextoFixoDecoder;
+import com.gof.criacional.decoder.textofixo.RegistrarContaTextoFixoDecoder;
 
 public class TextoFixoDecoderFactory extends DecoderFactory {
 

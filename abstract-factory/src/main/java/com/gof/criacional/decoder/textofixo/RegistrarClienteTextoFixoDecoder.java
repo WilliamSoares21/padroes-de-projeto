@@ -1,4 +1,6 @@
-package com.gof.criacional;
+package com.gof.criacional.decoder.textofixo;
+
+import com.gof.criacional.decoder.RegistrarClienteDecoder;
 
 public class RegistrarClienteTextoFixoDecoder extends RegistrarClienteDecoder {
   @Override

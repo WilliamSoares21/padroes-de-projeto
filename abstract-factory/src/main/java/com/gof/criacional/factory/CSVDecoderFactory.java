@@ -1,4 +1,9 @@
-package com.gof.criacional;
+package com.gof.criacional.factory;
+
+import com.gof.criacional.decoder.RegistrarClienteDecoder;
+import com.gof.criacional.decoder.RegistrarContaDecoder;
+import com.gof.criacional.decoder.csv.RegistrarClienteCSVDecoder;
+import com.gof.criacional.decoder.csv.RegistrarContaCSVDecoder;
 
 public class CSVDecoderFactory extends DecoderFactory {
 

@@ -1,4 +1,6 @@
-package com.gof.criacional;
+package com.gof.criacional.decoder.csv;
+
+import com.gof.criacional.decoder.RegistrarContaDecoder;
 
 public class RegistrarContaCSVDecoder extends RegistrarContaDecoder {
   @Override
