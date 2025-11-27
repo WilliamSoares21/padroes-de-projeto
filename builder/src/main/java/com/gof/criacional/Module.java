@@ -1,42 +1,44 @@
 package com.gof.criacional;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Módulo de um curso (pequena unidade: aula, vídeo, quiz).
- * Aqui usamos um builder simples também para mostrar composição.
- */
 public final class Module {
     private final String title;
-    private final String content; // resumo do conteúdo
-    private final int durationMinutes; // duração aproximada
-    private final List<String> resources; // links ou nomes de arquivos
+    private final String content;
+    private final int durationMinutes;
+    private final List<String> resources;
 
-    private Module(Builder b) {
-        this.title = b.title;
-        this.content = b.content;
-        this.durationMinutes = b.durationMinutes;
-        this.resources = Collections.unmodifiableList(new ArrayList<>(b.resources));
+    private Module(Builder builder) {
+        this.title = builder.title;
+        this.content = builder.content;
+        this.durationMinutes = builder.durationMinutes;
+        this.resources = List.copyOf(builder.resources);
     }
 
-    public String getTitle() { return title; }
-    public String getContent() { return content; }
-    public int getDurationMinutes() { return durationMinutes; }
-    public List<String> getResources() { return resources; }
+    public String getTitle() {
+        return title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public int getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public List<String> getResources() {
+        return resources;
+    }
 
     @Override
     public String toString() {
-        return "Module{" +
-                "title='" + title + '\'' +
-                ", durationMinutes=" + durationMinutes +
-                ", resources=" + resources +
-                '}';
+        return String.format("Module{title='%s', durationMinutes=%d, resources=%s}",
+                title, durationMinutes, resources);
     }
 
-    // Builder para Module (opcional)
     public static class Builder {
         private final String title;
         private String content = "";
@@ -44,19 +46,43 @@ public final class Module {
         private List<String> resources = new ArrayList<>();
 
         public Builder(String title) {
-            this.title = Objects.requireNonNull(title, "title é obrigatório");
+            this.title = validateRequired(title, "title");
         }
 
-        public Builder content(String content) { this.content = content; return this; }
-        public Builder durationMinutes(int minutes) { this.durationMinutes = minutes; return this; }
+        public Builder content(String content) {
+            this.content = content != null ? content : "";
+            return this;
+        }
+
+        public Builder durationMinutes(int minutes) {
+            this.durationMinutes = minutes;
+            return this;
+        }
+
         public Builder addResource(String resource) {
-            if (resource != null && !resource.isBlank()) resources.add(resource);
+            if (resource != null && !resource.isBlank()) {
+                resources.add(resource);
+            }
             return this;
         }
 
         public Module build() {
-            if (durationMinutes < 0) throw new IllegalStateException("durationMinutes não pode ser negativo");
+            validate();
             return new Module(this);
+        }
+
+        private void validate() {
+            if (durationMinutes < 0) {
+                throw new IllegalStateException("durationMinutes não pode ser negativo");
+            }
+        }
+
+        private static String validateRequired(String value, String fieldName) {
+            Objects.requireNonNull(value, fieldName + " é obrigatório");
+            if (value.isBlank()) {
+                throw new IllegalArgumentException(fieldName + " não pode ser vazio");
+            }
+            return value;
         }
     }
 }

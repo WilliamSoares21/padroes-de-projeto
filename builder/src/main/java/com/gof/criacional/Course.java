@@ -1,38 +1,36 @@
 package com.gof.criacional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Curso com muitos atributos opcionais — caso para usar Builder.
- */
 public final class Course {
-  // campos obrigatórios
+  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+  private static final BigDecimal ZERO = BigDecimal.ZERO;
+  
   private final String id;
   private final String title;
   private final String instructor;
-
-  // campos opcionais
   private final String description;
-  private final double price;
+  private final BigDecimal price;
   private final List<Module> modules;
   private final int estimatedHours;
   private final LocalDate releaseDate;
   private final boolean published;
 
-  private Course(Builder b) {
-    this.id = b.id;
-    this.title = b.title;
-    this.instructor = b.instructor;
-    this.description = b.description;
-    this.price = b.price;
-    this.modules = Collections.unmodifiableList(new ArrayList<>(b.modules));
-    this.estimatedHours = b.estimatedHours;
-    this.releaseDate = b.releaseDate;
-    this.published = b.published;
+  private Course(Builder builder) {
+    this.id = builder.id;
+    this.title = builder.title;
+    this.instructor = builder.instructor;
+    this.description = builder.description;
+    this.price = builder.price;
+    this.modules = List.copyOf(builder.modules);
+    this.estimatedHours = builder.estimatedHours;
+    this.releaseDate = builder.releaseDate;
+    this.published = builder.published;
   }
 
   public String getId() {
@@ -51,7 +49,7 @@ public final class Course {
     return description;
   }
 
-  public double getPrice() {
+  public BigDecimal getPrice() {
     return price;
   }
 
@@ -73,52 +71,48 @@ public final class Course {
 
   @Override
   public String toString() {
-    return "Course{" +
-        "id='" + id + '\'' +
-        ", title='" + title + '\'' +
-        ", instructor='" + instructor + '\'' +
-        ", price=" + price +
-        ", modules=" + modules.size() +
-        ", estimatedHours=" + estimatedHours +
-        ", releaseDate=" + releaseDate +
-        ", published=" + published +
-        '}';
+    return String.format("Course{id='%s', title='%s', instructor='%s', price=%s, modules=%d, estimatedHours=%d, releaseDate=%s, published=%b}",
+        id, title, instructor, price, modules.size(), estimatedHours, releaseDate, published);
   }
 
-  // Builder estático interno
   public static class Builder {
-    // obrigatórios
+    private static final int MIN_ESTIMATED_HOURS = 1;
+    
     private final String id;
     private final String title;
     private final String instructor;
-
-    // opcionais com defaults
     private String description = "";
-    private double price = 0.0;
+    private BigDecimal price = ZERO;
     private List<Module> modules = new ArrayList<>();
     private int estimatedHours = 0;
     private LocalDate releaseDate = LocalDate.now();
     private boolean published = false;
 
     public Builder(String id, String title, String instructor) {
-      this.id = Objects.requireNonNull(id, "id é obrigatório");
-      this.title = Objects.requireNonNull(title, "title é obrigatório");
-      this.instructor = Objects.requireNonNull(instructor, "instructor é obrigatório");
+      this.id = validateRequired(id, "id");
+      this.title = validateRequired(title, "title");
+      this.instructor = validateRequired(instructor, "instructor");
     }
 
     public Builder description(String description) {
-      this.description = description;
+      this.description = description != null ? description : "";
       return this;
     }
 
     public Builder price(double price) {
-      this.price = price;
+      this.price = BigDecimal.valueOf(price);
+      return this;
+    }
+    
+    public Builder price(BigDecimal price) {
+      this.price = price != null ? price : ZERO;
       return this;
     }
 
     public Builder addModule(Module module) {
-      if (module != null)
+      if (module != null) {
         this.modules.add(module);
+      }
       return this;
     }
 
@@ -128,7 +122,7 @@ public final class Course {
     }
 
     public Builder releaseDate(LocalDate date) {
-      this.releaseDate = date;
+      this.releaseDate = date != null ? date : LocalDate.now();
       return this;
     }
 
@@ -138,48 +132,68 @@ public final class Course {
     }
 
     public Course build() {
-      // validações de negócio
-      if (price < 0)
+      validate();
+      return new Course(this);
+    }
+    
+    private void validate() {
+      if (price.compareTo(ZERO) < 0) {
         throw new IllegalStateException("price não pode ser negativo");
+      }
       if (modules.isEmpty()) {
-        // permitir curso sem módulos pode ser aceitável; aqui exigimos >=1 para exemplo
-        // educativo
         throw new IllegalStateException("Um curso deve ter pelo menos 1 módulo");
       }
-      if (estimatedHours <= 0) {
-        // estimativa mínima
+      if (estimatedHours < MIN_ESTIMATED_HOURS) {
         throw new IllegalStateException("estimatedHours deve ser maior que 0");
       }
-      return new Course(this);
+    }
+    
+    private static String validateRequired(String value, String fieldName) {
+      Objects.requireNonNull(value, fieldName + " é obrigatório");
+      if (value.isBlank()) {
+        throw new IllegalArgumentException(fieldName + " não pode ser vazio");
+      }
+      return value;
     }
   }
   public String prettyPrint() {
-    StringBuilder sb = new StringBuilder();
+    StringBuilder sb = new StringBuilder(500);
 
-    sb.append("📘 CURSO: ").append(title).append("\n")
-      .append("ID: ").append(id).append("\n")
-      .append("Instrutor: ").append(instructor).append("\n")
-      .append("Preço: ").append(price == 0 ? "Gratuito" : "R$ " + price).append("\n")
-      .append("Horas Estimadas: ").append(estimatedHours).append("h\n")
-      .append("Lançamento: ").append(releaseDate.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))).append("\n")
-      .append("Status: ").append(published ? "Publicado" : "Rascunho").append("\n\n");
-
-    sb.append("📚 Módulos (").append(modules.size()).append("):\n");
-
-    int i = 1;
-    for (Module m : modules) {
-        sb.append("----------------------------------------\n")
-          .append(i++).append(") ").append(m.getTitle()).append("\n")
-          .append("   Duração: ").append(m.getDurationMinutes()).append(" minutos\n")
-          .append("   Recursos:\n");
-
-        for (String r : m.getResources()) {
-            sb.append("     - ").append(r).append("\n");
-        }
-
-        sb.append("\n");
-    }
+    appendCourseHeader(sb);
+    appendModulesList(sb);
 
     return sb.toString();
+  }
+  
+  private void appendCourseHeader(StringBuilder sb) {
+    sb.append("CURSO: ").append(title).append("\n")
+      .append("ID: ").append(id).append("\n")
+      .append("Instrutor: ").append(instructor).append("\n")
+      .append("Preco: ").append(formatPrice()).append("\n")
+      .append("Horas Estimadas: ").append(estimatedHours).append("h\n")
+      .append("Lancamento: ").append(releaseDate.format(DATE_FORMATTER)).append("\n")
+      .append("Status: ").append(published ? "Publicado" : "Rascunho").append("\n\n");
+  }
+  
+  private void appendModulesList(StringBuilder sb) {
+    sb.append("Modulos (").append(modules.size()).append("):\n");
+    
+    for (int i = 0; i < modules.size(); i++) {
+      Module module = modules.get(i);
+      sb.append("----------------------------------------\n")
+        .append(i + 1).append(") ").append(module.getTitle()).append("\n")
+        .append("   Duracao: ").append(module.getDurationMinutes()).append(" minutos\n")
+        .append("   Recursos:\n");
+
+      module.getResources().forEach(resource -> 
+        sb.append("     - ").append(resource).append("\n")
+      );
+      
+      sb.append("\n");
+    }
+  }
+  
+  private String formatPrice() {
+    return price.compareTo(ZERO) == 0 ? "Gratuito" : "R$ " + price;
   }
 }

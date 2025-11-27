@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 class MainTest {
@@ -35,7 +36,7 @@ class MainTest {
 
     Course course = new Course.Builder("curso-1", "Curso de Java", "Prof. João")
         .description("Curso completo de Java")
-        .price(199.90)
+        .price(BigDecimal.valueOf(199.90))
         .addModule(m1)
         .estimatedHours(10)
         .releaseDate(LocalDate.of(2025, 1, 1))
@@ -46,7 +47,7 @@ class MainTest {
     assertEquals("curso-1", course.getId());
     assertEquals("Curso de Java", course.getTitle());
     assertEquals("Prof. João", course.getInstructor());
-    assertEquals(199.90, course.getPrice());
+    assertEquals(0, BigDecimal.valueOf(199.90).compareTo(course.getPrice()));
     assertEquals(1, course.getModules().size());
     assertEquals(10, course.getEstimatedHours());
     assertTrue(course.isPublished());
@@ -60,7 +61,7 @@ class MainTest {
         .build();
 
     Course.Builder builder = new Course.Builder("curso-1", "Curso Teste", "Instrutor")
-        .price(-10.0)
+        .price(BigDecimal.valueOf(-10.0))
         .addModule(m1)
         .estimatedHours(5);
 
@@ -71,7 +72,7 @@ class MainTest {
   @DisplayName("Deve lançar exceção ao criar curso sem módulos")
   void shouldThrowExceptionForCourseWithoutModules() {
     Course.Builder builder = new Course.Builder("curso-1", "Curso Teste", "Instrutor")
-        .price(100.0)
+        .price(BigDecimal.valueOf(100.0))
         .estimatedHours(5);
 
     assertThrows(IllegalStateException.class, builder::build);
@@ -112,7 +113,7 @@ class MainTest {
         .estimatedHours(2)
         .build();
 
-    assertEquals(0.0, course.getPrice());
+    assertEquals(0, BigDecimal.ZERO.compareTo(course.getPrice()));
     assertFalse(course.isPublished());
     assertEquals(LocalDate.now(), course.getReleaseDate());
   }

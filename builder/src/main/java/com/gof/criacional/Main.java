@@ -1,28 +1,30 @@
 package com.gof.criacional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class Main {
   public static void main(String[] args) {
-    // construir módulos usando o builder do Module
-    Module m1 = new Module.Builder("Introdução ao Java")
-        .content("Conceitos básicos: JDK, JRE, JVM, tipos")
+    Module introductionModule = new Module.Builder("Introducao ao Java")
+        .content("Conceitos basicos: JDK, JRE, JVM, tipos")
         .durationMinutes(30)
         .addResource("slides-intro.pdf")
         .build();
 
-    Module m2 = new Module.Builder("Variáveis e Controle")
+    Module controlModule = new Module.Builder("Variaveis e Controle")
         .content("if, for, while, tipos primitivos")
         .durationMinutes(45)
         .addResource("exercicios-variaveis.zip")
         .build();
 
-    // construir curso usando Course.Builder
-    Course course = new Course.Builder("curso-java-basico", "Java Básico - Projeto Educacional", "Prof. Maria")
-        .description("Curso introdutório de Java para estudantes iniciantes.")
-        .price(0.0) // gratuito
-        .addModule(m1)
-        .addModule(m2)
+    Course course = new Course.Builder(
+            "curso-java-basico",
+            "Java Basico - Projeto Educacional",
+            "Prof. Maria")
+        .description("Curso introdutorio de Java para estudantes iniciantes.")
+        .price(BigDecimal.ZERO)
+        .addModule(introductionModule)
+        .addModule(controlModule)
         .estimatedHours(4)
         .releaseDate(LocalDate.of(2025, 3, 1))
         .published(true)
@@ -30,7 +32,6 @@ public class Main {
 
     System.out.println(course.prettyPrint());
 
-    // saída simples para ver detalhes:
     course.getModules().forEach(System.out::println);
   }
 }
